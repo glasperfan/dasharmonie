@@ -1,6 +1,5 @@
 SOURCES = \
-Test.ml \
-Test2.ml
+scales.ml
 
 all: $(SOURCES)
 	corebuild -quiet -lib graphics Main.native
