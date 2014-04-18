@@ -8,4 +8,4 @@ import sys
 s = converter.parse(sys.argv[1])
 
 # display in Finale (it's not going to be pretty)
-s.show()
+s.show('text')
