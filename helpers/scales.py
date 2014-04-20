@@ -2,6 +2,13 @@
 
 from pitches import *
 
+modes = {
+'maj': [1,3,5,6,8,10,12], 
+'min-h': [1,3,4,6,8,9,12], 
+'min-m': [1,3,4,6,8,10,12], 
+'min-n': [1,3,4,6,8,9,11]}
+
+# Possible modes: major, harmonic/melodic/natural minor
 class Scale:
 
     # default initializer creates a major/minor scale starting
@@ -25,13 +32,14 @@ class Scale:
             ps.append(p.getPitch())
         return ps
 
+    # constructs a scale starting from C in any of the defined modes
     def constructC(self, mode):
         self.tonic = Pitch('C')
         self.mode = mode
-        if mode == 'maj':
-            self.scale = [Pitch(1), Pitch(3), Pitch(5), Pitch(6), Pitch(8), Pitch(10), Pitch(12)]
-        elif mode == 'min':
-            self.scale = [Pitch(1), Pitch(3), Pitch(4), Pitch(6), Pitch(8), Pitch(9), Pitch(12)]
+        if modes.has_key(mode):
+            self.scale = []
+            for p in modes.get(mode):
+                self.scale.append(Pitch(p))
         else:
             print "Error: invalid mode"
 
