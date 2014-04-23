@@ -2,6 +2,8 @@
 
 # pitch num =   1    2     3    4     5    6    7     8    9    10    11   12
 pitch_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+enharmonics = ['A-','B-','C-','D-','E-','F-','G-']
+
 
 class Pitch:
 
@@ -60,3 +62,6 @@ assert type(name) is str
 p1 = Pitch('C')
 p1.setPitch(11)
 assert p1.getName() == 'A#'
+
+p1 = Pitch('A#')
+assert p1.getPitch() == 11

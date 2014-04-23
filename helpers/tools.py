@@ -3,14 +3,16 @@
 import scales as S
 import pitches as P
 from constants import *
-from collections import OrderedDict
-from music21 import corpus
-from music21 import duration
+import music21
 
 
 # Given a list of notes, return a list without duplicates.
 def listSet(l):
-	return list(set(l))
+	pitch_set = []
+	for p in l:
+		if p.getName() not in pitch_set:
+			pitch_set.append(p.getName())
+	return pitch_set
 
 # Given a list of notes, create a custom scale.
 def listScale(l):
@@ -21,32 +23,89 @@ def listScale(l):
 # a list of pitches.
 def toList(music21part):
 	# returns Python list of music21.pitch objects
-	music21pitches = music21part.pitches
+	notes = music21part.flat.getElementsByClass(music21.note.Note)
 	# convert music21 objects into our pitch representation and return
-	return [P.Pitch(str(p.name)) for p in music21pitches]
+	lst = []
+	for n in notes:
+		if n.pitch.name in P.enharmonics:
+			lst.append(P.Pitch(str(n.pitch.getEnharmonic().name)))
+		else:
+			lst.append(P.Pitch(str(n.pitch.name)))
+	return lst
 
-# Finds the smallest note duration given a music21.stream.part and its length.
-# Returns a music21.duration.Duration object
-def smallestDuration(music21part):
-	print "here"
-	pitches = music21part.pitches
-	min_duration = pitches[0].duration.quarterLength
-	for p in pitches:
-		if p.duration.quarterLength < min_duration:
-			min_duration = p.duration.quarterLength
-	d = duration.Duration(min_duration)
-	return d
+## Takes a list of pitch names and returns a list of pitch classes
+def toPitchClasses(pitch_names):
+	return [(P.Pitch(p)).pitch for p in pitch_names]
+
+# takes a score, returns a list of its measures
+# Note: this only works for the top part
+# Note: this method ignore pickup notes
+def getMeasures(score):
+	measures = []
+	for m in score.parts[0]:
+		if type(m) is music21.stream.Measure:
+			measures.append(m)
+	return measures
+
+def getNotes(measures):
+	notes = []
+	for m in measures:
+		for n in m:
+			if type(n) is music21.note:
+				notes.append(n)
+	return n
+
+# retrieve key signature (assumed to be given)
+def getTimeSignature(score):
+	for ms in s.parts[0]:
+		# grab the first measure
+		if type(ms) is music21.stream.Measure:
+			# and search for key signature object
+			for x in ms:
+				if type(x) is music21.meter.TimeSignature:
+					return x
 
 
+#returns the smallest duration of any note
+def smallestLength(measure_list):
+	min_duration = MAX_DURATION
+	for m in measure_list:
+		for n in m.notes:
+			dur = n.duration.quarterLength
+			if dur < min_duration:
+				min_duration = dur 
+	return min_duration
 
 
 # Determine key signature #
+# Note: this implementation does employ any given key signature.
+# Determination is based solely on the notes of the melody.
+
+# Helper function: turns a melody into a list of pitches, and
+# all notes have been broken down to units of the smallest
+# note duration in the melody.
+def flatten(score):
+	measures = getMeasures(score)
+	notes = getNotes(measures)
+	smallest_dur = smallestLength(measures)
+	newScore = []
+	for n in notes:
+		# repeats must be an integer
+		repeats = n.duration.quarterLength / smallest_dur
+		while repeats > 0:
+			if type(n) is music21.note.Rest:
+				newScore.append("REST")
+			else:
+				newScore.append(music21.note.Note(P.Pitch(n.name)))
+			repeats -= 1
+	return newScore
+
 
 # Helper function: given two scales, determine percentage of equality
 # As in, the percentage of notes in common
 def howEqual(s1, s2):
-	l1 = listSet(s1.scaleToName())
-	l2 = listSet(s2.scaleToName())
+	l1 = [p.getName() for p in s1.scale]
+	l2 = [p.getName() for p in s2.scale]
 	count = 0
 	for e in l1:
 		try:
@@ -54,21 +113,21 @@ def howEqual(s1, s2):
 			count += 1
 		except ValueError:
 			pass
-	# print "%d elements of scale 1 was found in scale 2" % count
 	return count
 	
-
+# generate all defined scales
 def generate():
-	# generate all major scales
 	scales = []
 	for p in P.pitch_names:
 		for m in S.modes:
 			scales.append(S.Scale(m,p))
 	return scales
 
-# compares scale to all major and minor scales and returns the scales 
+# compares scale to all defined scales and returns the scales 
 # with the closest match
 def compare(scale):
+	if DEBUG:
+		print scale.scaleToName()
 	scls = generate()
 	counts = []
 	tops =[]
@@ -82,18 +141,77 @@ def compare(scale):
 		topKeys.append(tops[n])
 	return topKeys
 
+# given a list of pitches and a scale, returns a list of the
+# respective scale degrees (1-7), or 0 if it's not found
+def degree(scale, pitch):
+	try:
+		i = scale.scaleToName().index(pitch.getName())
+		return i + 1
+	except ValueError:
+		return 0
 
-# returns the best key
-def findTonic(list):
-	if DIATONIC:
-		# start by find most likely keys
-		# for each of those keys, determine
+# searches for a match on the last three notes against all
+# ending pitch progressions
+def cycle(last3):
+	try:
+		x = pitch_progression_high.index(last3)
+		return PPH_PROBABILITY
+	except ValueError:
 		pass
-	else:
-		# do something else
+	try:
+		x = pitch_progression_medium.index(last3)
+		return PPM_PROBABILITY
+	except ValueError:
 		pass
+	try:
+		x = pitch_progression_low.index(last3)
+		return PPL_PROBABILITY
+	except ValueError:
+		return PPN_PROBABILITY
+
+# takes a score and return a list of candidate scales
+def findKeyCandidates(score):
+	pitches = listSet(toList(score.parts[0]))
+	x = listScale(toPitchClasses(pitches))
+	return compare(x)
 
 
+# returns the likely tonic given the list of scale candidates 
+def findTonic(pitches, scale_list):
+	# The final notes (say the last 3) are arguably the 
+	# most important determinants of the tonic.
+	tally = {}
+	for s in scale_list:
+		r = s.tonic.getName()
+		tally[r] = 0
+		last = degree(s, pitches[-1:][0])
+		second = degree(s, pitches[-2:-1][0])
+		third = degree(s, pitches[-3:-2][0])
+		if last == 1:
+			if second == 1 or second == 2 or second == 5 or second == 7:
+				tally[r] += PPC_PROBABILITY
+			else:
+				tally[r] += PPL_PROBABILITY
+		elif last == 3:
+			if second == 4:
+				tally[r] += PPC_PROBABILITY
+			else:
+				tally[r] += cycle([third,second,last])
+		elif last == 5:
+			tally[r] += cycle([third,second,last])
+		else:
+			pass
+	if DEBUG:
+		print tally
+	return max(tally, key=tally.get)
+
+
+def keyAndTonic(score):
+	pitches = toList(score.parts[0])
+	candidates = compare(listScale(toPitchClasses(listSet(pitches))))
+	tonic = findTonic(pitches, candidates)
+	key = [s for s in candidates if s.tonic.getName() is tonic][0]
+	return {'tonic': tonic, 'mode': key.mode, 'key': key}
 
 
 ### ASSERTIONS ###
@@ -103,3 +221,8 @@ s3 = S.CustomScale([1,3,5,7,9,9,11,2,3])
 s4 = S.CustomScale([1,1,1,1])
 s5 = S.CustomScale([1,2,3,4])
 s6 = S.CustomScale([10])
+
+testmelody = music21.corpus.parse('ryansMammoth/AutographHornpipe.abc')
+if DEBUG:
+	testmelody.show('lily.pdf')
+	print keyAndTonic(testmelody)

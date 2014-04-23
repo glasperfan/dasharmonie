@@ -55,12 +55,14 @@ class CustomScale(Scale):
         self.mode = 'custom'
         self.scale = []
         tonic = 12
-        for n in notes:
-            p = Pitch(n)
-            if p.getPitch < tonic:
-                tonic = p.getPitch
-            self.scale.append(p)
-        self.tonic = Pitch(tonic)
+        if type(notes[0]) is int:
+            for n in notes:
+                p = Pitch(n)
+                if p.getPitch < tonic:
+                    tonic = p.getPitch
+                self.scale.append(p)
+            self.tonic = Pitch(tonic)
+
 
     #override default method
     def constructC(self, mode):
