@@ -5,7 +5,7 @@
 ###################################
 
 ## DEBUG SWITCH ##
-DEBUG = True
+DEBUG = False
 
 
 # Some functions operate on the knowledge of diatonic or not.
@@ -54,6 +54,42 @@ PPL_PROBABILITY = 0.2
 PPN_PROBABILITY = 0.1
 
 
+## DIATONIC CHORDS
+DIATONIC_CHORDS_maj =  {1: ['maj','maj7'], 
+						2: ['min','min7'], 
+						3: ['min','min7'], 
+						4: ['maj','maj7'], 
+						5: ['maj','dom7'], 
+						6: ['min','min7'], 
+						7: ['dim','hdim7']}
+
+DIATONIC_CHORDS_minH = {1: ['min'], 
+						2: ['dim', 'hdim7'],
+						3: ['aug'],
+						4: ['min', 'min7'],
+						5: ['maj', 'dom7'],
+						6: ['maj','maj7'],
+						7: ['dim', 'dim7']}
+
+DIATONIC_CHORDS_minM = {1: ['min'],
+						2: ['min','dim'],
+						3: ['aug','maj'],
+						4: ['min','maj'],
+						5: ['maj', 'dom7'],
+						6: ['maj'],
+						7: ['dim', 'dim7']} 
+
+DIATONIC_CHORDS_minN = {1: ['min','min7'],
+						2: ['dim', 'hdim7'],
+						3: ['maj','maj7'],
+						4: ['min', 'min7'],
+						5: ['min','min7'],
+						6: ['maj', 'maj7'],
+						7: ['maj','dom7']} 
+
+
+
+## CHORD PROGRESSIONS ##
 
 
 

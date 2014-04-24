@@ -41,11 +41,7 @@ def toPitchClasses(pitch_names):
 # Note: this only works for the top part
 # Note: this method ignore pickup notes
 def getMeasures(score):
-	measures = []
-	for m in score.parts[0]:
-		if type(m) is music21.stream.Measure:
-			measures.append(m)
-	return measures
+	return score[1].getElementsByClass(stream.Measure)
 
 def getNotes(measures):
 	notes = []
@@ -222,7 +218,24 @@ s4 = S.CustomScale([1,1,1,1])
 s5 = S.CustomScale([1,2,3,4])
 s6 = S.CustomScale([10])
 
-testmelody = music21.corpus.parse('ryansMammoth/AutographHornpipe.abc')
+testmelody = music21.corpus.parse('ryansMammoth/AWillieWeHaveMissdYouStrathspey.abc')
 if DEBUG:
 	testmelody.show('lily.pdf')
 	print keyAndTonic(testmelody)
+
+#[p for p in paths if p.find("Jig") != -1]
+
+## TONIC ANALYSIS ##
+# accuracy = {'succeeded': 0, 'failed': 0}
+# paths = music21.corpus.getComposer('ryansMammoth')
+# for p in paths[::2]:
+# 	sc = music21.corpus.parse(p)
+# 	try:
+# 		res = keyAndTonic(sc)
+# 		if sc[1][0][1].getContextByClass(music21.key.KeySignature).pitchAndMode[0].name == res['tonic']:
+# 			accuracy['succeeded'] += 1
+# 		else:
+# 			accuracy['failed'] += 1
+# 	except AttributeError:
+# 		pass
+# print accuracy

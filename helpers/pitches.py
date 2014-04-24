@@ -1,8 +1,9 @@
 # pitches.py
+from music21 import pitch
 
 # pitch num =   1    2     3    4     5    6    7     8    9    10    11   12
 pitch_names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-enharmonics = ['A-','B-','C-','D-','E-','F-','G-']
+enharmonics = ['A-','B-','C-','D-','E-','F-','G-', 'B#', 'E#', 'F##']
 
 
 class Pitch:
@@ -27,6 +28,7 @@ class Pitch:
             self.pitch = i + 1
         else:
             print "Error: invalid pitch initialization"
+            print n
 
     def jump(self, n):
         x = ((self.pitch + n) % 12)

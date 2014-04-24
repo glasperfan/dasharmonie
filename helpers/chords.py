@@ -1,5 +1,5 @@
 #chords.py
-import pitches
+import pitches as P
 
 # implemented chords (defined by pitch class)
 chords = {
@@ -17,6 +17,8 @@ chords = {
 class Chord:
 
 	#initialize with [tonic][mode], such as "Cmaj7"
+	# if you specify a key you can pass in chords by pitch class
+	# for example, Chord('1maj7', key=7) = F#maj7
 	def __init__(self, chord_type):
 		if type(chord_type) is str:
 			if chord_type[1] is not '#':
@@ -80,3 +82,7 @@ assert c3.mode == 'maj'
 c4 = Chord('A#hdim7')
 assert c4.root.getName() == 'A#'
 assert c4.inv().inv().root.getName() == 'E'
+
+c6 = Chord('Gmaj7')
+print c5.chordToName()
+print c6.chordToName()
