@@ -4,6 +4,7 @@ import scales as S
 import pitches as P
 from constants import *
 import music21
+#import datetime
 
 
 # Given a list of notes, return a list without duplicates.
@@ -34,22 +35,11 @@ def toList(music21part):
 	return lst
 
 ## Takes a list of pitch names and returns a list of pitch classes
-def toPitchClasses(pitch_names):
-	return [(P.Pitch(p)).pitch for p in pitch_names]
+def toPitchClasses(names):
+	return [P.pitch_names.index(p) + 1 for p in names]
 
-# takes a score, returns a list of its measures
-# Note: this only works for the top part
-# Note: this method ignore pickup notes
-def getMeasures(score):
-	return score[1].getElementsByClass(stream.Measure)
-
-def getNotes(measures):
-	notes = []
-	for m in measures:
-		for n in m:
-			if type(n) is music21.note:
-				notes.append(n)
-	return n
+def toPitchNames(classes):
+	return [P.pitch_names[p-1] for p in classes]
 
 # retrieve key signature (assumed to be given)
 def getTimeSignature(score):
@@ -60,41 +50,6 @@ def getTimeSignature(score):
 			for x in ms:
 				if type(x) is music21.meter.TimeSignature:
 					return x
-
-
-#returns the smallest duration of any note
-def smallestLength(measure_list):
-	min_duration = MAX_DURATION
-	for m in measure_list:
-		for n in m.notes:
-			dur = n.duration.quarterLength
-			if dur < min_duration:
-				min_duration = dur 
-	return min_duration
-
-
-# Determine key signature #
-# Note: this implementation does employ any given key signature.
-# Determination is based solely on the notes of the melody.
-
-# Helper function: turns a melody into a list of pitches, and
-# all notes have been broken down to units of the smallest
-# note duration in the melody.
-def flatten(score):
-	measures = getMeasures(score)
-	notes = getNotes(measures)
-	smallest_dur = smallestLength(measures)
-	newScore = []
-	for n in notes:
-		# repeats must be an integer
-		repeats = n.duration.quarterLength / smallest_dur
-		while repeats > 0:
-			if type(n) is music21.note.Rest:
-				newScore.append("REST")
-			else:
-				newScore.append(music21.note.Note(P.Pitch(n.name)))
-			repeats -= 1
-	return newScore
 
 
 # Helper function: given two scales, determine percentage of equality
@@ -121,10 +76,9 @@ def generate():
 
 # compares scale to all defined scales and returns the scales 
 # with the closest match
-def compare(scale):
+def compare(scale, scls):
 	if DEBUG:
 		print scale.scaleToName()
-	scls = generate()
 	counts = []
 	tops =[]
 	for s in scls:
@@ -165,12 +119,6 @@ def cycle(last3):
 	except ValueError:
 		return PPN_PROBABILITY
 
-# takes a score and return a list of candidate scales
-def findKeyCandidates(score):
-	pitches = listSet(toList(score.parts[0]))
-	x = listScale(toPitchClasses(pitches))
-	return compare(x)
-
 
 # returns the likely tonic given the list of scale candidates 
 def findTonic(pitches, scale_list):
@@ -203,8 +151,9 @@ def findTonic(pitches, scale_list):
 
 
 def keyAndTonic(score):
+	scls = generate()
 	pitches = toList(score.parts[0])
-	candidates = compare(listScale(toPitchClasses(listSet(pitches))))
+	candidates = compare(listScale(toPitchClasses(listSet(pitches))), scls)
 	tonic = findTonic(pitches, candidates)
 	key = [s for s in candidates if s.tonic.getName() is tonic][0]
 	return {'tonic': tonic, 'mode': key.mode, 'key': key}
@@ -226,16 +175,17 @@ if DEBUG:
 #[p for p in paths if p.find("Jig") != -1]
 
 ## TONIC ANALYSIS ##
-# accuracy = {'succeeded': 0, 'failed': 0}
-# paths = music21.corpus.getComposer('ryansMammoth')
-# for p in paths[::2]:
-# 	sc = music21.corpus.parse(p)
-# 	try:
-# 		res = keyAndTonic(sc)
-# 		if sc[1][0][1].getContextByClass(music21.key.KeySignature).pitchAndMode[0].name == res['tonic']:
-# 			accuracy['succeeded'] += 1
-# 		else:
-# 			accuracy['failed'] += 1
-# 	except AttributeError:
-# 		pass
-# print accuracy
+if DEBUG:
+	accuracy = {'succeeded': 0, 'failed': 0}
+	paths = music21.corpus.getComposer('ryansMammoth')
+	for p in paths[::2]:
+		sc = music21.corpus.parse(p)
+		try:
+			res = keyAndTonic(sc)
+			if sc[1][0][1].getContextByClass(music21.key.KeySignature).pitchAndMode[0].name == res['tonic']:
+				accuracy['succeeded'] += 1
+			else:
+				accuracy['failed'] += 1
+		except AttributeError:
+			pass
+	print accuracy

@@ -2,7 +2,10 @@
 
 # weight of different tones defined in harmony
 from constants import *
-import tools
+import tools as T
+import chords as C
+import pitches as P
+import scales as S
 import music21
 
 '''
@@ -47,15 +50,66 @@ General assumptions:
 
 '''
 
+## Harmony helper functions
+def getMeasures(score):
+	return score[1].getElementsByClass(music21.stream.Measure)
 
-def runAnalysis():
-	pass
+def getNotes(measure):
+	return measure.getElementsByClass(music21.note.Note)
+
+# music21.note.Note --> pitches.Pitch
+def NotesToPitches(notes):
+	return [P.Pitch(n.pitch.name) for n in notes]
+
+def generate(mode, scale):
+	all_chords = []
+	for degree in DIATONIC_CHORDS[mode]:
+		for c in DIATONIC_CHORDS[mode][degree]:
+			note = scale.scale[degree-1].getName()
+			all_chords.append(C.Chord(note+c))
+	return all_chords
+
+def howEqual(chord, notes):
+	count = 0
+	for n in notes:
+		if n.getName() in chord.chordToName():
+			count += 1
+	return count
+
+def compare(chords, notes):
+	tops = {}
+	for c in chords:
+		res = howEqual(c, notes)
+		if res in tops:
+			tops[res].append(c)
+		else:
+			tops[res] = [c]
+	return tops
+
+notes = [P.Pitch('B'),P.Pitch('D'),P.Pitch('F'),P.Pitch('G')]
+sc = S.Scale('maj','C')
+compare(generate(sc.mode, sc), notes)
+
+def howEqual(s1, s2):
+	l1 = [p.getName() for p in s1.scale]
+	l2 = [p.getName() for p in s2.scale]
+	count = 0
+	for e in l1:
+		try:
+			x = l2.index(e)
+			count += 1
+		except ValueError:
+			pass
+	return count
+
+def runAnalysis(score):
+	res = T.keyAndTonic(score) # has "tonic", "mode", "key"
+	s = Scale(res["mode"], res["tonic"])
+	chords = generate(res["mode"], s)
+	candidates = compare(chords, s.scale)
 
 
-def split(measure_list):
-	segments = []
-	for m in measure_list:
-		if len(m.notes) % 
+
 
 #def runMeasure(m):
 
@@ -65,6 +119,9 @@ def collectWeights():
 
 
 s = music21.corpus.parse('bach/bwv108.6.xml')
+#s.show('lily.pdf')
 ms = getMeasures(s)
+ns = getNotes(ms[0])
 #s.parts[0].show('lily.pdf')
-print smallestLength(ms)
+#print ms.show('text')
+#print getNotes(ms[0]).show('text')

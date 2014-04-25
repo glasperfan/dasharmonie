@@ -17,7 +17,7 @@ DEFAULT_TIME_SIGNATURE = 4
 # The smallest length of segements in the harmonic analysis.
 # 1 represents a full measure, 0.5 a half measure, 
 # 2 is 2 measures, etc. 
-SEGMENT_LENGTH = 1
+SEGMENT_LENGTH = {1:"BY_MEASURE", 2:"BY_BEAT"}
 
 # maximum number of beats (in quarter-lengths)
 MAX_DURATION = 8
@@ -84,12 +84,28 @@ DIATONIC_CHORDS_minN = {1: ['min','min7'],
 						3: ['maj','maj7'],
 						4: ['min', 'min7'],
 						5: ['min','min7'],
-						6: ['maj', 'maj7'],
+						6: ['maj', 'maj7'], 
 						7: ['maj','dom7']} 
 
-
+DIATONIC_CHORDS =  {"maj" : DIATONIC_CHORDS_maj, 
+					"min-n" : DIATONIC_CHORDS_minN, 
+					"min-m" : DIATONIC_CHORDS_minM, 
+					"min-h" : DIATONIC_CHORDS_minH}
 
 ## CHORD PROGRESSIONS ##
+HARMONY_TO_1 = {1:2, 2:2, 3:1, 4:2, 5:3, 6:1 , 7:0}
+
+HARMONY_TO_2 = {1:1, 2:2, 3:1, 4:0, 5:0, 6:2, 7:0}
+
+HARMONY_TO_3 = {1:2, 2:1, 3:2, 4:1 ,5:2 ,6:3, 7:0}
+
+HARMONY_TO_4 = {1:2, 2:2, 3:1, 4:2, 5:3, 6:1, 7:0}
+
+HARMONY_TO_5 = {1:3, 2:3, 3:1, 4:2, 5:2, 6:1, 7:1}
+
+HARMONY_TO_6 = {1:2, 2:2, 3:2, 4:1, 5:3, 6:2, 7:1}
+
+HARMONY_TO_7 = {1:0, 2:0, 3:0, 4:1, 5:2, 6:3, 7:1}
 
 
 
