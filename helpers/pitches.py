@@ -27,8 +27,7 @@ class Pitch:
             i = pitch_names.index(n)
             self.pitch = i + 1
         else:
-            print "Error: invalid pitch initialization"
-            print n
+            print "Error: Cannot initialize pitch -> %s" % n
 
     def jump(self, n):
         x = ((self.pitch + n) % 12)

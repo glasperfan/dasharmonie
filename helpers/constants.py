@@ -7,6 +7,9 @@
 ## DEBUG SWITCH ##
 DEBUG = False
 
+## TEST SWITCH ##
+TEST = False
+
 
 # Some functions operate on the knowledge of diatonic or not.
 # For know we are assuming that is true.
@@ -21,6 +24,18 @@ SEGMENT_LENGTH = {1:"BY_MEASURE", 2:"BY_BEAT"}
 
 # maximum number of beats (in quarter-lengths)
 MAX_DURATION = 8
+
+
+## Harmonic Analysis Constants ##
+
+CUTOFF = 2
+# This means only chords that match for at least of their notes
+# will be accepted as candidates.
+
+TONIC_DENSITY = 1.0
+# This means only 75% of measures identified as potential tonic
+# chords will actually become them. The rest will chosen like
+# all other chords.
 
 
 ### PITCH PROGRESSIONS ###
@@ -93,19 +108,27 @@ DIATONIC_CHORDS =  {"maj" : DIATONIC_CHORDS_maj,
 					"min-h" : DIATONIC_CHORDS_minH}
 
 ## CHORD PROGRESSIONS ##
-HARMONY_TO_1 = {1:2, 2:2, 3:1, 4:2, 5:3, 6:1 , 7:0}
+# In order of decreasing tendency towards that scale degree #
+# For example, 5 chords are most likely to lead to 1 chords, and 7 chords least so #
+HARMONY_TO_1 = [5,4,2,1,6,3,7]
 
-HARMONY_TO_2 = {1:1, 2:2, 3:1, 4:0, 5:0, 6:2, 7:0}
+HARMONY_TO_2 = [6,1,4,3,5,2,7]
 
-HARMONY_TO_3 = {1:2, 2:1, 3:2, 4:1 ,5:2 ,6:3, 7:0}
+HARMONY_TO_3 = [6,5,1,2,4,3,7]
 
-HARMONY_TO_4 = {1:2, 2:2, 3:1, 4:2, 5:3, 6:1, 7:0}
+HARMONY_TO_4 = [1,5,2,4,6,3,7]
 
-HARMONY_TO_5 = {1:3, 2:3, 3:1, 4:2, 5:2, 6:1, 7:1}
+HARMONY_TO_5 = [2,4,1,5,6,3,7]
 
-HARMONY_TO_6 = {1:2, 2:2, 3:2, 4:1, 5:3, 6:2, 7:1}
+HARMONY_TO_6 = [5,3,7,2,1,4,6]
 
-HARMONY_TO_7 = {1:0, 2:0, 3:0, 4:1, 5:2, 6:3, 7:1}
+HARMONY_TO_7 = [6,5,1,4,3,2,7]
 
-
+harmony_progressions = {1: HARMONY_TO_1,
+						2: HARMONY_TO_2,
+						3: HARMONY_TO_3,
+						4: HARMONY_TO_4,
+						5: HARMONY_TO_5,
+						6: HARMONY_TO_6,
+						7: HARMONY_TO_7}
 

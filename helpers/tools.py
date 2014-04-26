@@ -175,10 +175,10 @@ if DEBUG:
 #[p for p in paths if p.find("Jig") != -1]
 
 ## TONIC ANALYSIS ##
-if DEBUG:
+if TEST:
 	accuracy = {'succeeded': 0, 'failed': 0}
 	paths = music21.corpus.getComposer('ryansMammoth')
-	for p in paths[::2]:
+	for p in [p for p in paths if p.find("Jig") != -1]:
 		sc = music21.corpus.parse(p)
 		try:
 			res = keyAndTonic(sc)
