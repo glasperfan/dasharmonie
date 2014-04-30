@@ -2,8 +2,12 @@
 
 # weight of different tones defined in harmony
 from constants import *
-import tools
+import tools as T
+import chords as C
+import pitches as P
+import scales as S
 import music21
+import random
 
 '''
 
@@ -45,26 +49,154 @@ General assumptions:
 2) Tonic and dominant notes are the most important parts of the melody line
 3) Tonic and dominant chords are the important harmonies of any tonal work
 
+
+
+
+KNOWN BUGS:
+1) Identification of V6/4 chords (currently goes to Imaj7)
+2) Finding more I chords in accurate locations
+3) How to determine which chord to pick when there are multiple options
+
 '''
 
+## Harmony helper functions
+def getMeasures(score):
+	return score[1].getElementsByClass(music21.stream.Measure)
 
-def runAnalysis():
-	pass
+# stream.Measure --> List(note.Note) --> List (pitches.Pitch)
+def getPitches(measure):
+	notes = measure.getElementsByClass(music21.note.Note)
+	return [P.Pitch(str(n.pitch.name)) for n in notes]
+
+# List (pitches.Pitch) --> List(pitches.Pitch)
+def listSet(l):
+	pitch_set = []
+	pitch_names = []
+	for p in l:
+		if p.getName() not in pitch_names:
+			pitch_names.append(p.getName())
+			pitch_set.append(p)
+	return pitch_set
+
+def generate(mode, scale):
+	all_chords = []
+	for degree in DIATONIC_CHORDS[mode]:
+		for c in DIATONIC_CHORDS[mode][degree]:
+			note = scale.scale[degree-1].getName()
+			all_chords.append(C.Chord(note+c))
+	return all_chords
+
+def howEqual(chord, notes):
+	count = 0
+	for n in notes:
+		if n.getName() in chord.chordToName():
+			count += 1
+	return count
+
+def compare(chords, notes):
+	tops = {}
+	for c in chords:
+		res = howEqual(c, notes)
+		if res in tops:
+			tops[res].append(c)
+		else:
+			tops[res] = [c]
+	return tops
 
 
-def split(measure_list):
-	segments = []
-	for m in measure_list:
-		if len(m.notes) % 
-
-#def runMeasure(m):
-
-
-def collectWeights():
-	pass
+def generateCandidates(chords, measures):
+	candidate_array = []
+	for m in measures:
+		pitch_set = listSet(getPitches(m))
+		candidates = compare(chords, pitch_set)
+		candidate_array.append(candidates)
+	return candidate_array
 
 
-s = music21.corpus.parse('bach/bwv108.6.xml')
-ms = getMeasures(s)
-#s.parts[0].show('lily.pdf')
-print smallestLength(ms)
+def choose(candidates, next_chord, scale):
+	degree = scale.scaleToName().index(next_chord.root.getName()) + 1
+	likely_harmonies = harmony_progressions[degree]
+	sorted_cand = sorted(candidates.items(),reverse=True)
+	all_cand = []
+	for pair in sorted_cand:
+		all_cand.extend(pair[1])
+	while len(likely_harmonies) > 0:
+		h = likely_harmonies.pop(0)
+		root = scale.scaleToName()[h - 1] 
+		for chord in all_cand:
+			res = [c for c in all_cand if c.root.getName() == root]
+		# if no chords match, look at the next best progression
+		if len(res) == 0:
+			continue
+		# if only one option is found, return that chord
+		elif len(res) == 1:
+			return res[0]
+		# if there are multiple options, choose arbitrarily
+		else:
+			return res[0]
+	# if this point is reached, raise an error
+	assert False
+
+def findOnes(candidate_array, ms, scale):
+	# automatically set the last measure to a I chord
+	assert len(candidate_array) == len(ms)
+	tonic_chord = C.Chord(scale.tonic.getName() + scale.mode)
+	dominant_chord = C.Chord(scale.scale[4].getName() + scale.mode)
+	candidate_array[-1] = tonic_chord
+	# set the first measure to I or V
+	n = getPitches(ms[0])
+	if howEqual(dominant_chord, n) / len(n) == 1:
+		# if all notes are in dominant, set as dominant chord
+		candidate_array[0] = dominant_chord
+	else:
+		# else set to tonic chord by default
+		candidate_array[0] = tonic_chord
+	# find other possible I chords
+	potential_ones = []
+	other_ms = ms[1:-1]
+	for m in other_ms:
+		n = getPitches(m)
+		if howEqual(tonic_chord,n) / len(n) > 0.75:
+			potential_ones.append(ms.index(m))
+	num_tonic = int(TONIC_DENSITY * len(potential_ones))
+	for i in range(0, num_tonic):
+		choice = random.choice(potential_ones)
+		candidate_array[choice] = tonic_chord
+	return candidate_array
+
+
+def chordify(cand_arr, sc,counter,next_chord):
+	if -counter < len(cand_arr):	
+		# get last measure in array
+		if next_chord is "None" and counter == 0:
+			chordify(cand_arr,sc,-2,cand_arr[-1])
+		elif counter == len(cand_arr):
+			return cand_arr
+		else:
+			candidates = cand_arr[counter]
+			# if the chord has already been chosen for this measure, move to the next one
+			if type(candidates) is not dict:
+				chordify(cand_arr,sc,(counter - 1), candidates)
+			else:
+				choice = choose(candidates,next_chord,sc)
+				cand_arr[counter] = choice
+				chordify(cand_arr,sc,(counter - 1), choice)
+	return cand_arr
+
+def runAnalysis(score):
+	res = T.keyAndTonic(score) # has "tonic", "mode", "key"
+	s = S.Scale(res["mode"], res["tonic"])
+	chords = generate(res["mode"], s)
+	measures = getMeasures(score)
+	candidate_array = generateCandidates(chords,measures)
+	withOnes = findOnes(candidate_array, measures, s)
+	complete = chordify(candidate_array,s, 0, "None")
+	return complete
+
+score = music21.corpus.parse('ryansMammoth/BattleTheCashJig.abc')
+#score.show('lily.pdf')
+#complete = runAnalysis(score)
+# for i in range(0, len(complete)):
+# 	print i + 1
+# 	print complete[i].chordToName()
+# 	print "\n"

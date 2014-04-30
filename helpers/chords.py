@@ -1,5 +1,5 @@
 #chords.py
-import pitches
+import pitches as P
 
 # implemented chords (defined by pitch class)
 chords = {
@@ -17,6 +17,7 @@ chords = {
 class Chord:
 
 	#initialize with [tonic][mode], such as "Cmaj7"
+	# if you specify a key you can pass in chords by pitch class
 	def __init__(self, chord_type):
 		if type(chord_type) is str:
 			if chord_type[1] is not '#':
@@ -26,14 +27,14 @@ class Chord:
 				root = chord_type[:2]
 				mode = chord_type[2:]
 			try:
-				pitches.pitch_names.index(root)
-				self.root = pitches.Pitch(root)
+				P.pitch_names.index(root)
+				self.root = P.Pitch(root)
 			except ValueError:
 				print "invalid chord initialization"
 			if chords.has_key(mode):
 				intervals = chords.get(mode)
 				self.mode = mode
-				self.chord = [pitches.Pitch(p) for p in intervals]
+				self.chord = [P.Pitch(p) for p in intervals]
 				self.transpose(self.root.getPitch() - 1)
 			else:
 				print "invalid chord initialization"
@@ -41,16 +42,10 @@ class Chord:
 			print "invalid chord initialization"
 
 	def chordToName(self):
-		names = []
-		for p in self.chord:
-			names.append(p.getName())
-		return names
+		return [p.getName() for p in self.chord]
 
 	def chordToPitch(self):
-		ps = []
-		for p in self.chord:
-			ps.append(p.getPitch())
-		return ps
+		return [p.getPitch() for p in self.chord]
 
 	def inOctave(self, octave):
 		cur = self.root.octave
@@ -87,3 +82,13 @@ assert c3.mode == 'maj'
 c4 = Chord('A#hdim7')
 assert c4.root.getName() == 'A#'
 assert c4.inv().inv().root.getName() == 'E'
+
+assert Chord('Gmaj').chordToName() == ['G','B','D']
+assert Chord('Gmin').chordToName() == ['G','A#','D']
+assert Chord('Gdim').chordToName() == ['G','A#','C#']
+assert Chord('Gaug').chordToName() == ['G','B','D#']
+assert Chord('Emaj7').chordToName() == ['E','G#','B','D#']
+assert Chord('Fdom7').chordToName() == ['F','A','C','D#']
+assert Chord('F#min7').chordToName() == ['F#','A','C#','E']
+assert Chord('G#hdim7').chordToName() ==['G#','B','D','F#']
+assert Chord('Adim7').chordToName() == ['A','C','D#','F#']

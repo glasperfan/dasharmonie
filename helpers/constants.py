@@ -5,7 +5,10 @@
 ###################################
 
 ## DEBUG SWITCH ##
-DEBUG = True
+DEBUG = False
+
+## TEST SWITCH ##
+TEST = False
 
 
 # Some functions operate on the knowledge of diatonic or not.
@@ -17,10 +20,22 @@ DEFAULT_TIME_SIGNATURE = 4
 # The smallest length of segements in the harmonic analysis.
 # 1 represents a full measure, 0.5 a half measure, 
 # 2 is 2 measures, etc. 
-SEGMENT_LENGTH = 1
+SEGMENT_LENGTH = {1:"BY_MEASURE", 2:"BY_BEAT"}
 
 # maximum number of beats (in quarter-lengths)
 MAX_DURATION = 8
+
+
+## Harmonic Analysis Constants ##
+
+CUTOFF = 2
+# This means only chords that match for at least of their notes
+# will be accepted as candidates.
+
+TONIC_DENSITY = 1.0
+# This means only 75% of measures identified as potential tonic
+# chords will actually become them. The rest will chosen like
+# all other chords.
 
 
 ### PITCH PROGRESSIONS ###
@@ -54,6 +69,66 @@ PPL_PROBABILITY = 0.2
 PPN_PROBABILITY = 0.1
 
 
+## DIATONIC CHORDS
+DIATONIC_CHORDS_maj =  {1: ['maj','maj7'], 
+						2: ['min','min7'], 
+						3: ['min','min7'], 
+						4: ['maj','maj7'], 
+						5: ['maj','dom7'], 
+						6: ['min','min7'], 
+						7: ['dim','hdim7']}
 
+DIATONIC_CHORDS_minH = {1: ['min'], 
+						2: ['dim', 'hdim7'],
+						3: ['aug'],
+						4: ['min', 'min7'],
+						5: ['maj', 'dom7'],
+						6: ['maj','maj7'],
+						7: ['dim', 'dim7']}
 
+DIATONIC_CHORDS_minM = {1: ['min'],
+						2: ['min','dim'],
+						3: ['aug','maj'],
+						4: ['min','maj'],
+						5: ['maj', 'dom7'],
+						6: ['maj'],
+						7: ['dim', 'dim7']} 
+
+DIATONIC_CHORDS_minN = {1: ['min','min7'],
+						2: ['dim', 'hdim7'],
+						3: ['maj','maj7'],
+						4: ['min', 'min7'],
+						5: ['min','min7'],
+						6: ['maj', 'maj7'], 
+						7: ['maj','dom7']} 
+
+DIATONIC_CHORDS =  {"maj" : DIATONIC_CHORDS_maj, 
+					"min-n" : DIATONIC_CHORDS_minN, 
+					"min-m" : DIATONIC_CHORDS_minM, 
+					"min-h" : DIATONIC_CHORDS_minH}
+
+## CHORD PROGRESSIONS ##
+# In order of decreasing tendency towards that scale degree #
+# For example, 5 chords are most likely to lead to 1 chords, and 7 chords least so #
+HARMONY_TO_1 = [5,4,2,1,6,3,7]
+
+HARMONY_TO_2 = [6,1,4,3,5,2,7]
+
+HARMONY_TO_3 = [6,5,1,2,4,3,7]
+
+HARMONY_TO_4 = [1,5,2,4,6,3,7]
+
+HARMONY_TO_5 = [2,4,1,5,6,3,7]
+
+HARMONY_TO_6 = [5,3,7,2,1,4,6]
+
+HARMONY_TO_7 = [6,5,1,4,3,2,7]
+
+harmony_progressions = {1: HARMONY_TO_1,
+						2: HARMONY_TO_2,
+						3: HARMONY_TO_3,
+						4: HARMONY_TO_4,
+						5: HARMONY_TO_5,
+						6: HARMONY_TO_6,
+						7: HARMONY_TO_7}
 
