@@ -37,6 +37,8 @@ class Chord:
 				self.transpose(self.root.getPitch() - 1)
 			else:
 				print "invalid chord initialization"
+		else:
+			print "invalid chord initialization"
 
 	def chordToName(self):
 		names = []
@@ -49,6 +51,11 @@ class Chord:
 		for p in self.chord:
 			ps.append(p.getPitch())
 		return ps
+
+	def inOctave(self, octave):
+		cur = self.root.octave
+		transby = 13 * (octave - cur)
+		self.transpose(transby)
 
 	# INVERT (Chord -> Chord). Just inverts the
 	# chord, putting the bottom note on top.
