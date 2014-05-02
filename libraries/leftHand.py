@@ -4,11 +4,11 @@ import music21
 
 # takes chords (in an array), key signature, and chord duration (as a fraction of a measure) as parameters
 # defaults duration to 1 measure if not specified
-def leftHand(chords, sig, offset, duration = 1):
+def leftHand(chords, sig, offset, key, duration = 1):
 	lh = music21.stream.Part()
 	lh.id = 'leftHand'
 	instrument = music21.instrument.Piano()
-	m0 = music21.stream.Measure()
+	m0 = music21.stream.Measure([key])
 	m0.number = 0
 	m0.clef = music21.clef.BassClef()
 	m0.meter = sig

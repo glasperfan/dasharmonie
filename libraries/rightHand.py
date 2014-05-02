@@ -5,11 +5,11 @@ import music21
 # takes chords (in an array), key signature, octave of chords, and chord duration (as a fraction of a measure) as parameters
 # defaults octave to 3
 # defaults duration to 1 measure if not specified
-def rightHandBlock(chords, sig, offset, octave = 3, duration = 1):
+def rightHandBlock(chords, sig, offset, key, octave = 3, duration = 1):
 	rh = music21.stream.Part()
 	rh.id = 'rightHandBlock'
 	instrument = music21.instrument.Piano()
-	m0 = music21.stream.Measure()
+	m0 = music21.stream.Measure([key])
 	m0.number = 0
 	if octave < 4: 
 		m0.clef = music21.clef.BassClef()
@@ -38,11 +38,11 @@ def rightHandBlock(chords, sig, offset, octave = 3, duration = 1):
 # defaults octave to 3
 # defaults duration to 1 measure if not specified
 
-def rightHandArp(chords, sig, offset, noteval = 8, octave = 3, duration = 1, pattern = [0,1,2,3]):
+def rightHandArp(chords, sig, offset, key, noteval = 8, octave = 3, duration = 1, pattern = [1,2,3,2]):
 	rh = music21.stream.Part()
 	rh.id = 'rightHandArp'
 	instrument = music21.instrument.Piano()
-	m0 = music21.stream.Measure()
+	m0 = music21.stream.Measure([key])
 	m0.number = 0
 	if octave < 4: 
 		m0.clef = music21.clef.BassClef()
@@ -63,7 +63,7 @@ def rightHandArp(chords, sig, offset, noteval = 8, octave = 3, duration = 1, pat
 	noteval = 8.0 # sticking with eighths for now
 	quarterLength = 4.0 / noteval
 	num_notes = int(noteval * sig.numerator / sig.denominator)
-	pattern = [0,1,2,3] # straight up arpeggios for now
+	pattern = [1,2,3,2] # straight up arpeggios for now
 	plen = len(pattern)
 
 	for c in chords:
