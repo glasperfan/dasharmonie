@@ -18,8 +18,7 @@ def buildScore(melody, accomp):
 	melody_part = m[1]
 
 	# offset for accomp. starts after pickup
-	offset = melody_part[2].offset
-	print 'offset =====', offset
+	offset = pickupBeats(melody_part, sig)
 
 	# creates array of chords to pass to accomp algorithm
 	c1 = chords.Chord('Cmaj7')
@@ -40,10 +39,19 @@ def buildScore(melody, accomp):
 	#creates lh accomp
 	lh = L.leftHand(chord_array, sig, offset)
 
-	score.insert(0, melody_part)
-	score.insert(1.0, rh)
-	score.insert(1.0, lh)
+	score.insert(0.0, melody_part)
+	score.insert(0.0, rh)
+	score.insert(0.0, lh)
 
 	return score
 
-buildScore('../melodies/happy_birthday.xml', 'A').show('lily.pdf')
+def pickupBeats(melody_part, sig):
+	m1 = melody_part[2]
+	measure_beats = sig.numerator * 4.0 / sig.denominator
+	beat_count = m1.offset
+	if measure_beats == beat_count:
+		return 0.0
+	else: return beat_count
+
+
+buildScore('../melodies/hymn_1.xml', 'A').show('lily.pdf')

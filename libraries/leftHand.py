@@ -12,7 +12,8 @@ def leftHand(chords, sig, offset, duration = 1):
 	m0.number = 0
 	m0.clef = music21.clef.BassClef()
 	m0.meter = sig
-	m0.append(music21.note.Rest(quarterLength=offset))
+	if offset != 0:
+		m0.append(music21.note.Rest(quarterLength=offset))
 	lh.append(instrument)
 	lh.append(m0)
 	dur = duration * 4.0 * sig.numerator / sig.denominator

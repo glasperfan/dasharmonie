@@ -16,7 +16,8 @@ def rightHandBlock(chords, sig, offset, octave = 3, duration = 1):
 	else:
 		m0.clef = music21.clef.TrebleClef()
 	m0.meter = sig
-	m0.append(music21.note.Rest(quarterLength=offset))
+	if offset != 0:
+		m0.append(music21.note.Rest(quarterLength=offset))
 	rh.append(instrument)
 	rh.append(m0)
 
@@ -48,7 +49,8 @@ def rightHandArp(chords, sig, offset, noteval = 8, octave = 3, duration = 1, pat
 	else:
 		m0.clef = music21.clef.TrebleClef()
 	m0.meter = sig
-	m0.append(music21.note.Rest(quarterLength=offset))
+	if offset != 0:
+		m0.append(music21.note.Rest(quarterLength=offset))
 	rh.append(instrument)
 	rh.append(m0)
 
