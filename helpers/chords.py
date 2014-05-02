@@ -47,11 +47,6 @@ class Chord:
 	def chordToPitch(self):
 		return [p.getPitch() for p in self.chord]
 
-	def inOctave(self, octave):
-		cur = self.root.octave
-		transby = 13 * (octave - cur)
-		self.transpose(transby)
-
 	# INVERT (Chord -> Chord). Just inverts the
 	# chord, putting the bottom note on top.
 	def inv(self):
@@ -75,6 +70,7 @@ assert c1.transpose(2).chordToName() == ['E','G#','B','D#']
 assert c1.inv().chordToName() == ['G#','B','D#','E']
 c2 = Chord('Amaj7')
 assert c1.inv().inv().inv().transpose(5).chordToName() == c2.chordToName()
+print c1.chordToPitch
 
 
 c3 = Chord('F#maj')
