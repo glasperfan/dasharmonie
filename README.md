@@ -19,22 +19,35 @@ In order to take advantage of the full power of Das-Harmonie, you should downloa
 >>> python das-harmonie inputfile.xml -B --mus
 ```
 
-**OPTIONS**
+**Options**
+-----------
 
-Argument 1: das-harmonie
-Argument 2: _name_ of file containing melody
-Argument 3: _style_ of accompaniment
-Argument 4: _format_ of output score
 
-Accepted file types:
+**Arguments**
+
+1. das-harmonie
+2. _name_ of file containing melody
+3. _style_ of accompaniment
+4. _format_ of output score
+
+
+
+**Accepted file types**
+
 1. 'xml'
 2. 'mxl'
 3. 'abc' --> only used in music21 corpus: http://web.mit.edu/music21/doc/systemReference/referenceCorpus.html
+
+
+
 
 Code          | Style of accompaniment
 ------------- | ----------------------
 -B            | Block chords
 -A            | Arppegiated chords
+
+
+
 
 Code       | Possible output formats
 -----------| -------------------------------------
