@@ -123,18 +123,10 @@ def generateCandidates(chords, measures):
 	return candidate_array
 
 
-def choose(candidates, next_chord, scale):
-	degree = scale.scaleToName().index(next_chord.root.getName()) + 1
-	likely_harmonies = harmony_progressions[degree]
-	sorted_cand = sorted(candidates.items(),reverse=True)
-	all_cand = []
-	for pair in sorted_cand:
-		all_cand.extend(pair[1])
-	while len(likely_harmonies) > 0:
-		h = likely_harmonies.pop(0)
-		root = scale.scaleToName()[h - 1] 
-		for chord in all_cand:
-			res = [c for c in all_cand if c.root.getName() == root]
+def chooseSubset(candidates, harmonies, scale):
+	for prog in harmonies:
+		root = scale.scaleToName()[prog - 1]
+		res = [c for c in candidates if c.root.getName() == root]
 		# if no chords match, look at the next best progression
 		if len(res) == 0:
 			continue
@@ -151,7 +143,38 @@ def choose(candidates, next_chord, scale):
 				return choice
 			else:
 				return random.choice(res)
-	raise Exception ("Error (harmony.py): unable to determine chord. Try running the program again.")
+	return "None"
+
+def choose(candidates, next_chord, scale):
+	degree = scale.scaleToName().index(next_chord.root.getName()) + 1
+	likely_harmonies = harmony_progressions[degree]
+	# use as a copy
+	cand = candidates
+	# compare top notes matches to first 3 likely harmonies
+	top_key = max(cand.keys(), key=int)
+	top_matches = cand[top_key]
+	res_top = chooseSubset(top_matches, likely_harmonies[:3], scale)
+	if res_top != "None":
+		return res_top
+	else:
+		# if no chord matches, try the second best set of note matches
+		cand.pop(top_key, None)
+		second_top_key = max(cand.keys(), key=int)
+		second_top_matches = cand[second_top_key]
+		res_second_top = chooseSubset(second_top_matches, likely_harmonies[:3], scale)
+		if res_second_top != "None":
+			return res_second_top
+		else:
+			# if still no success, try all candidates successively, and look for any match 
+			for cand_set in candidates:
+				res = chooseSubset(cand_set, likely_harmonies, scale)
+				if res != "None":
+					return res
+				# if still NOTHING is returned as a match, just take the top chord in candidates
+				# and run with it 
+				else:
+					return candidates[max(candidates.keys(), key=int)][0]
+
 
 def findOnes(candidate_array, ms, scale):
 	# automatically set the last measure to a I chord

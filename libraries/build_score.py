@@ -55,5 +55,5 @@ def pickupBeats(melody_part, sig):
 	else: return beat_count
 
 
-testmel = music21.converter.parse('../melodies/happy_birthday.xml')
-buildScore(testmel, 'A').show('lily.pdf')
+# testmel = music21.converter.parse('../melodies/happy_birthday.xml')
+# buildScore(testmel, 'A').show('lily.pdf')

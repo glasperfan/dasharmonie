@@ -67,14 +67,14 @@ def verifyFile():
 			s = music21.corpus.parse(res)
 			print "File verified."
 			#s.show('lily.pdf')
-			return s
+			return (s, fileName)
 		else:
 			raise Exception ("Error (3): cannot parse file.")
 	try:
 		s = music21.converter.parse("das-harmonie/melodies/" + f)
 		print "File verified."
 		#s.show('lily.pdf')
-		return s
+		return (s, fileName)
 	except:
 		raise Exception ("Error (3): cannot parse file.")
 
@@ -122,21 +122,21 @@ def verifyOutputMethod():
 def verify():
 	print "Verifying..."
 	basic = basicVerify()
-	s = verifyFile()
+	s, fileName = verifyFile()
 	allGood = basic and verifyScore(s) and verifyStyle() and verifyOutputMethod()
 	if allGood:
-		return s
+		return (s, fileName)
 
 def runDasHarmonie():
-	sys.tracebacklimit = 0 # hides traceback stdout 
+	#sys.tracebacklimit = 0 # hides traceback stdout 
 	DEBUG = False
 	om = sys.argv[3]
 	if om == '--debug':
 		DEBUG = True
-	s = verify()
+	s, fileName = verify()
 	res = T.keyAndTonic(s)
 	print res
-	output = BS.buildScore(s,sys.argv[2][1]) #GENERATE ACCOMPANIMENT
+	output = BS.buildScore(s,sys.argv[2][1], fileName) #GENERATE ACCOMPANIMENT
 	if om == '--mus':
 		output.show()
 	elif om == '--pdf':

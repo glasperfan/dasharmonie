@@ -18,13 +18,8 @@ TEST = False
 
 DEFAULT_TIME_SIGNATURE = 4
 
-# The smallest length of segements in the harmonic analysis.
-# 1 represents a full measure, 0.5 a half measure, 
-# 2 is 2 measures, etc. 
-SEGMENT_LENGTH = {1:"BY_MEASURE", 2:"BY_BEAT"}
-
 # maximum number of beats (in quarter-lengths)
-MAX_DURATION = 8
+MAX_DURATION = 16
 
 
 ## Harmonic Analysis Constants ##
@@ -33,13 +28,13 @@ CUTOFF = 2
 # This means only chords that match for at least of their notes
 # will be accepted as candidates.
 
-DOMINANT_DENSITY = 0.80
+DOMINANT_DENSITY = 0.30
 TONIC_DENSITY = 0.40
-# This means 100% of measures identified as potential tonic
-# chords will actually become them. The rest will chosen like
+# If TONIC_DENSITY = 0.40 then 40% of measures identified as potential 
+# tonic chords will actually become them. The rest will chosen like
 # all other chords.
 
-SEVENTH_DENSITY = 0.30
+SEVENTH_DENSITY = 0.50
 # Works as a limiter on the number of seventh chords, since they
 # generally have higher rates of matching than triads. Lower values
 # for this constant means lower amounts of seventh chords.
