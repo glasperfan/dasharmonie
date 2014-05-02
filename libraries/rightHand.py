@@ -5,21 +5,31 @@ import music21
 # takes chords (in an array), key signature, octave of chords, and chord duration (as a fraction of a measure) as parameters
 # defaults octave to 3
 # defaults duration to 1 measure if not specified
-def rightHandBlock(chords, sig, octave = 3, duration = 1):
+def rightHandBlock(chords, sig, offset, octave = 3, duration = 1):
 	rh = music21.stream.Part()
 	rh.id = 'rightHandBlock'
-	dur = duration * sig.numerator / sig.denominator * 4
+	instrument = music21.instrument.Piano()
+	m0 = music21.stream.Measure()
+	m0.number = 0
+	if octave < 4: 
+		m0.clef = music21.clef.BassClef()
+	else:
+		m0.clef = music21.clef.TrebleClef()
+	m0.meter = sig
+	m0.append(music21.note.Rest(quarterLength=offset))
+	rh.append(instrument)
+	rh.append(m0)
+
+	next_measure = music21.stream.Measure()
+	next_measure.number = 1
+
+	duration = 1 # sticking with one harmony per measure for now
+	dur = duration * 4.0 * sig.numerator / sig.denominator
 
 	for c in chords:
-	    if len(c.chordToName()) is 3: c.inv()
-	    print('hi')
-        i = music21.chord.Chord(c.chordToName())
-        print('variable')
-        # i = i.closedPosition()
-        print('closedPosition')
-        i.duration = music21.duration.Duration(dur)
-        print('durset')
-        rh.append(i)
+		i = buildChord(c, octave, dur)
+		next_measure.append(i)
+	rh.insert(offset, next_measure)
 	return rh
 
 # takes chords (in an array), key signature, noteval (note value of arpeggiation), octave of chords, and chord duration (as a fraction of a measure) as parameters
@@ -27,44 +37,77 @@ def rightHandBlock(chords, sig, octave = 3, duration = 1):
 # defaults octave to 3
 # defaults duration to 1 measure if not specified
 
-def rightHandArp(chords, sig, noteval = 8, octave = 3, duration = 1, pattern = [0,1,2,3]):
+def rightHandArp(chords, sig, offset, noteval = 8, octave = 3, duration = 1, pattern = [0,1,2,3]):
 	rh = music21.stream.Part()
 	rh.id = 'rightHandArp'
+	instrument = music21.instrument.Piano()
+	m0 = music21.stream.Measure()
+	m0.number = 0
+	if octave < 4: 
+		m0.clef = music21.clef.BassClef()
+	else:
+		m0.clef = music21.clef.TrebleClef()
+	m0.meter = sig
+	m0.append(music21.note.Rest(quarterLength=offset))
+	rh.append(instrument)
+	rh.append(m0)
+
+	next_measure = music21.stream.Measure()
+	next_measure.number = 1
+
+
 	duration = 1 # sticking with one harmony per measure for now
-	dur = duration * sig.numerator / sig.denominator * 4
-	noteval = 8 # sticking with eighths for now
-	quarterLength = 4 / noteval
-	num_notes = noteval * sig.numerator / sig.denominator
+	dur = duration * 4.0 * sig.numerator / sig.denominator
+	noteval = 8.0 # sticking with eighths for now
+	quarterLength = 4.0 / noteval
+	num_notes = int(noteval * sig.numerator / sig.denominator)
+	pattern = [0,1,2,3] # straight up arpeggios for now
 	plen = len(pattern)
 
 	for c in chords:
-		n = toNotes(c.inOctave(octave), quarterLength)
+		n = toNotes(c, quarterLength, octave)
 		if len(n) is 3:
-			rootup = n[0]
+			rootup = music21.note.Note(n[0].nameWithOctave)
+			rootup.duration = n[0].duration
 			rootup.octave += 1
 			n.append(rootup)
-		i = 0
-		while (i < num_notes):
-			tmp = music21.note.Note(n[pattern[i % plen]].nameWithOctave, n[pattern[i % plen]].duration)
-			rh.append(tmp)
-			i += 1
+		for i in range (0, num_notes):
+			tmp = music21.note.Note(n[pattern[i % plen]].nameWithOctave)
+			tmp.duration = n[pattern[i % plen]].duration
+			next_measure.append(tmp)
+	rh.insert(offset, next_measure)	
 	return rh
 
 
 # takes a chord, desired octave and length of notes in quarters and returns array of notes
-def toNotes(chord, quarterLength = 1):
+def toNotes(chord, quarterLength, octave):
 	notes = []
-	for n in chord.chordToName():
-		note = music21.note.Note(n, quarterLength)
+	octave = octave
+	l = len(chord.chordToName())
+	for i in range (0, l):
+		n = chord.chordToName()[i]
+		note = music21.note.Note(n, quarterLength=quarterLength, octave=octave)
 		notes.append(note)
+		if (i < l-1):
+			if chord.chordToPitch()[i] > chord.chordToPitch()[i+1]:
+				octave += 1
 	return notes
 
+def buildChord(chord, octave, duration):
+	c_octave = 12 * (octave+1) - 1
+	i = music21.chord.Chord([c_octave+x for x in chord.chordToPitch()], quarterLength=duration)
+	return i
 
+def printNotes(chord):
+	print '['
+	for n in chord: print n.fullName
+	print ']'
 
-c1 = chords.Chord('Dmaj7')
-c2 = chords.Chord('Amaj7')
-c3 = chords.Chord('F#maj')
-c4 = chords.Chord('A#maj')
-rightHandArp([c1, c2, c3, c4], music21.meter.TimeSignature('3/4')).show('lily.pdf')
-
-
+'''
+c1 = chords.Chord('Cmaj7')
+c2 = chords.Chord('Gdom7')
+c3 = chords.Chord('Dmin')
+c4 = chords.Chord('Amin')
+# rightHandBlock([c1, c2, c3, c4], music21.meter.TimeSignature('3/4')).show('text')
+rightHandArp([c1, c4, c3, c2, c1], music21.meter.TimeSignature('7/4')).show('lily.pdf')
+'''
