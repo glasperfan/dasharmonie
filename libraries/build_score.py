@@ -10,8 +10,9 @@ import tools as T
 # (parsed melody -> music21.stream.Score())
 def buildScore(melody, accomp, name):
 	score = music21.stream.Score()
-	score.title = 'Das-Harmonie Von', name
-	score.composer = 'Hugh and Jordan'
+	score.insert(music21.metadata.Metadata())
+	score.metadata.title = 'Das-Harmonie Von ' + name
+	score.metadata.composer = 'By Hugh and Jordan'
 
 	# parse melody
 	m = melody
@@ -69,5 +70,5 @@ def getKey(m):
 
 '''
 testmel = music21.converter.parse('../melodies/up_theme.xml')
-buildScore(testmel, 'A', 'asdf').show('text')
+buildScore(testmel, 'A', 'asdf').show()
 '''
