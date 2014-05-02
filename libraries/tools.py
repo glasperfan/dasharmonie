@@ -157,7 +157,7 @@ def keyAndTonic(score):
 	key = [s for s in candidates if s.tonic.getName() is tonic][0]
 	return {'tonic': tonic, 'mode': key.mode, 'key': key}
 
-'''
+
 ### ASSERTIONS ###
 s1 = S.Scale('maj','C')
 s2 = S.Scale('maj','G')
@@ -188,4 +188,3 @@ if TEST:
 		except AttributeError:
 			pass
 	print accuracy
-'''
