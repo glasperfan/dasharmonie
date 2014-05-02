@@ -5,9 +5,9 @@ import sys
 import subprocess
 import os
 import music21
-import lib.tools as T
-import lib.harmony as H
-from lib.constants import *
+import libraries.tools as T
+import libraries.harmony as H
+from libraries.constants import *
 
 '''
 
