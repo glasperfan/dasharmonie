@@ -135,7 +135,7 @@ def runDasHarmonie():
 		DEBUG = True
 	s = verify()
 	res = T.keyAndTonic(s)
-	print res
+	# print res
 	output = BS.buildScore(s,sys.argv[2][1]) #GENERATE ACCOMPANIMENT
 	if om == '--mus':
 		output.show()
