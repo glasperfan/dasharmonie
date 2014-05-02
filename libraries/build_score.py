@@ -6,13 +6,14 @@ import harmony as H
 
 
 # takes a melody and the accompaniment type (b or a) and builds the score
+# (parsed melody -> music21.stream.Score())
 def buildScore(melody, accomp):
 	score = music21.stream.Score()
 	# score[1][1][1] = music21.clef.TrebleClef()
 
 	# parse melody
-	m = music21.converter.parse(melody)
-	sig = m[1][1][3]
+	m = melody
+	sig = m[1][1].timeSignature
 
 	# creates part for melody
 	melody_part = m[1]
@@ -21,11 +22,11 @@ def buildScore(melody, accomp):
 	offset = pickupBeats(melody_part, sig)
 
 	# creates array of chords to pass to accomp algorithm
-	c1 = chords.Chord('Cmaj7')
-	c2 = chords.Chord('Gdom7')
-	c3 = chords.Chord('Dmin')
-	c4 = chords.Chord('Amin')
-	chord_array = [c1,c2,c3,c4] # H.runAnalysis(m)
+	chord_array = H.runAnalysis(m)
+
+	# delete first chord if pickup
+	if offset != 0:
+			del chord_array[0]
 
 	# creates rh accomp
 	if accomp == 'b' or accomp == 'B':
@@ -54,4 +55,5 @@ def pickupBeats(melody_part, sig):
 	else: return beat_count
 
 
-buildScore('../melodies/hymn_1.xml', 'A').show('lily.pdf')
+testmel = music21.converter.parse('../melodies/happy_birthday.xml')
+buildScore(testmel, 'A').show('lily.pdf')
