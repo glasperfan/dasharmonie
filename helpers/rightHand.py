@@ -5,32 +5,18 @@ import music21
 # takes chords (in an array), key signature, octave of chords, and chord duration (as a fraction of a measure) as parameters
 # defaults octave to 3
 # defaults duration to 1 measure if not specified
-def rightHandBlock(chords, sig, offset, octave = 3, duration = 1):
-	rh = music21.stream.Part()
-	rh.id = 'rightHandBlock'
-	instrument = music21.instrument.Piano()
-	m0 = music21.stream.Measure()
-	m0.number = 0
+def rightHandBlock(chords, sig, octave = 3, duration = 1):
 	if octave < 4: 
-		m0.clef = music21.clef.BassClef()
+		rh = music21.stream.Part([music21.clef.BassClef(), sig])
 	else:
-		m0.clef = music21.clef.TrebleClef()
-	m0.meter = sig
-	if offset != 0:
-		m0.append(music21.note.Rest(quarterLength=offset))
-	rh.append(instrument)
-	rh.append(m0)
-
-	next_measure = music21.stream.Measure()
-	next_measure.number = 1
-
+		rh = music21.stream.Part()
+	rh.id = 'rightHandBlock'
 	duration = 1 # sticking with one harmony per measure for now
 	dur = duration * 4.0 * sig.numerator / sig.denominator
 
 	for c in chords:
 		i = buildChord(c, octave, dur)
-		next_measure.append(i)
-	rh.insert(offset, next_measure)
+		rh.append(i)
 	return rh
 
 # takes chords (in an array), key signature, noteval (note value of arpeggiation), octave of chords, and chord duration (as a fraction of a measure) as parameters
@@ -38,26 +24,12 @@ def rightHandBlock(chords, sig, offset, octave = 3, duration = 1):
 # defaults octave to 3
 # defaults duration to 1 measure if not specified
 
-def rightHandArp(chords, sig, offset, noteval = 8, octave = 3, duration = 1, pattern = [0,1,2,3]):
-	rh = music21.stream.Part()
-	rh.id = 'rightHandArp'
-	instrument = music21.instrument.Piano()
-	m0 = music21.stream.Measure()
-	m0.number = 0
+def rightHandArp(chords, sig, noteval = 8, octave = 3, duration = 1, pattern = [0,1,2,3]):
 	if octave < 4: 
-		m0.clef = music21.clef.BassClef()
+		rh = music21.stream.Part([music21.clef.BassClef(), sig])
 	else:
-		m0.clef = music21.clef.TrebleClef()
-	m0.meter = sig
-	if offset != 0:
-		m0.append(music21.note.Rest(quarterLength=offset))
-	rh.append(instrument)
-	rh.append(m0)
-
-	next_measure = music21.stream.Measure()
-	next_measure.number = 1
-
-
+		rh = music21.stream.Part()
+	rh.id = 'rightHandArp'
 	duration = 1 # sticking with one harmony per measure for now
 	dur = duration * 4.0 * sig.numerator / sig.denominator
 	noteval = 8.0 # sticking with eighths for now
@@ -76,8 +48,7 @@ def rightHandArp(chords, sig, offset, noteval = 8, octave = 3, duration = 1, pat
 		for i in range (0, num_notes):
 			tmp = music21.note.Note(n[pattern[i % plen]].nameWithOctave)
 			tmp.duration = n[pattern[i % plen]].duration
-			next_measure.append(tmp)
-	rh.insert(offset, next_measure)	
+			rh.append(tmp)
 	return rh
 
 
@@ -105,11 +76,11 @@ def printNotes(chord):
 	for n in chord: print n.fullName
 	print ']'
 
-'''
 c1 = chords.Chord('Cmaj7')
 c2 = chords.Chord('Gdom7')
 c3 = chords.Chord('Dmin')
 c4 = chords.Chord('Amin')
 # rightHandBlock([c1, c2, c3, c4], music21.meter.TimeSignature('3/4')).show('text')
 rightHandArp([c1, c4, c3, c2, c1], music21.meter.TimeSignature('7/4')).show('lily.pdf')
-'''
+
+
