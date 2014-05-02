@@ -81,6 +81,6 @@ c2 = chords.Chord('Gdom7')
 c3 = chords.Chord('Dmin')
 c4 = chords.Chord('Amin')
 # rightHandBlock([c1, c2, c3, c4], music21.meter.TimeSignature('3/4')).show('text')
-rightHandBlock([c1, c4, c3, c2, c1], music21.meter.TimeSignature('7/4')).show('lily.pdf')
+rightHandArp([c1, c4, c3, c2, c1], music21.meter.TimeSignature('7/4')).show('lily.pdf')
 
 
