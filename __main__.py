@@ -7,6 +7,7 @@ import os
 import music21
 import libraries.tools as T
 import libraries.harmony as H
+import libraries.build_score as BS
 from libraries.constants import *
 
 '''
@@ -135,8 +136,7 @@ def runDasHarmonie():
 	s = verify()
 	res = T.keyAndTonic(s)
 	print res
-	chords = H.runAnalysis(s)
-	output = s #GENERATE ACCOMPANIMENT
+	output = BS.buildScore(s,sys.argv[2][1]) #GENERATE ACCOMPANIMENT
 	if om == '--mus':
 		output.show()
 	elif om == '--pdf':
