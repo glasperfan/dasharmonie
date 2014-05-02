@@ -58,8 +58,6 @@ def pickupBeats(melody_part, sig):
 		return 0.0
 	else: return beat_count
 
-
-<<<<<<< HEAD
 def getKey(m):
 	res = T.keyAndTonic(m)
 	if res['mode'] == 'maj':
@@ -69,10 +67,7 @@ def getKey(m):
 	return music21.key.KeySignature(music21.key.pitchToSharps(res['tonic'], m))
 
 
-
+'''
 testmel = music21.converter.parse('../melodies/up_theme.xml')
 buildScore(testmel, 'A', 'asdf').show('text')
-=======
-# testmel = music21.converter.parse('../melodies/happy_birthday.xml')
-# buildScore(testmel, 'A').show('lily.pdf')
->>>>>>> b232cf3fe23c55f70957650dec91f383960ba467
+'''
