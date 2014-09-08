@@ -3,6 +3,8 @@ Das-Harmonie
 
 A Python attempt at _supervised_, automatic melodic harmonization.
 
+**Demonstration available here:** https://www.youtube.com/watch?v=fq1XNULCcSw
+
 In order to take advantage of the full power of Das-Harmonie, you should download the following software:
 
 1. Music21 (https://code.google.com/p/music21/downloads/list)
