@@ -29,12 +29,12 @@ CUTOFF = 2
 # will be accepted as candidates.
 
 DOMINANT_DENSITY = 0.30
-TONIC_DENSITY = 0.40
+TONIC_DENSITY = 0.80
 # If TONIC_DENSITY = 0.40 then 40% of measures identified as potential 
 # tonic chords will actually become them. The rest will chosen like
 # all other chords.
 
-SEVENTH_DENSITY = 0.50
+SEVENTH_DENSITY = 0.60
 # Works as a limiter on the number of seventh chords, since they
 # generally have higher rates of matching than triads. Lower values
 # for this constant means lower amounts of seventh chords.

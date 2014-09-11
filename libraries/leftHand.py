@@ -28,11 +28,3 @@ def leftHand(chords, sig, offset, key, duration = 1):
 
 	lh.insert(offset, next_measure)
 	return lh
-
-'''
-c1 = chords.Chord('Dmaj7')
-c2 = chords.Chord('Amaj7')
-c3 = chords.Chord('F#maj')
-c4 = chords.Chord('A#hdim7')
-leftHand([c1, c2, c3, c4], music21.meter.TimeSignature('3/4')).show('text')
-'''
