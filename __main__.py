@@ -2,158 +2,76 @@
 # This is the main module for analysis. It is executed directly.
 
 import sys
-import subprocess
-import os
-import music21
-import libraries.tools as T
-import libraries.harmony as H
-import libraries.build_score as BS
-from libraries.constants import *
+# import subprocess
+# import os
 
 '''
 
-Necessary arguments:
-sys.argv[1] ---> MusicXML file containing a melody
-	Options: all musicXML files 
-sys.argv[2] ---> Style of accompaniment
-	Options: -B, -A
-sys.argv[3] ---> Format of output
-	Options: --mus, --pdf, --xml, --midi, --lily, --text, --debug
-	Note: --debug turns debug mode on for the current session.
+TODO: move this to README.md 
 
-Requirements
-1) File must be of MusicXML format.
-2) The parsed score must contain a melody line.
-3) The parsed score must contain a time signature.
-4) The time signature must be a recognized one (either 3/4 or 4/4).
-5) The parsed score must be entirely diatonic. 
-6) The specified style must be a valid one.
+
+
+VERSION 2.0
+
+The new version of Das Harmonie is intended to simplify an overly complicated program but simulataneously increase its functionality. 
+
+The objective is straightforward:
+1) Accept an input file, in one of a variety of formats. (That is, anything that can be parsed by music21.)
+2) Validations
+	a) Valid arguments
+		i) Invalid arguments --> fault; exit 
+	b) Recognizable format
+		i) Unable to parse --> fault; exit
+	c) One melody line required.
+		i) Multiple melody lines --> ask user to choose one of them
+		ii) No melody line --> fault; exit
+	d) Time signature must be valid.
+		i) invalid time signature (per music21) --> fault; exit
+		ii) no time signature --> fault; exit
+		iii) no time signature at measure 1 --> fault; exit
+	e) Key signature must be within 7 flats or 7 sharps
+		i) Greater than 7 flats or sharps --> fault; exit
+3) Either choose the key signature given, or analyze the melody to determine an appropriate one.
+	a) Completely diatonic (either one key or multiple) --> choose diatonic chord set
+	b) Non-diatonic --> break down by measure (this is the tough part)
+4) Develop chord progressions. Choose locations for cadences. This is the most difficult part to implement.
+5) Build the score using music21 objects. Options for accompaniment style include block chords and arpeggio.
+
+
+Additional features:
+1) To allow for user configuration during use, the main harmonization tools will reside in harmony.py.
+Users will be able to configure items such as defaults for style, key signature analysis, strength of chord tendencies, etc. from
+the config.py file.
+2) Thus, das-harmonie will be able to run standalone:
+		>>> python das-harmonie FILENAME -b --pdf
+   Or as an interactive element.
+   		$ python
+   		Python 2.7.....
+   		>>> from das-harmonie import *
+   		>>> config.setOutputFormat('pdf')
+   		>>> harmony.harmonize('melody1.xml')
+   		Amazing things happen....
+3) Debug will be fully implemented. --debug. Will actually generate print statements.
+4) Info will be implemented to allow users to see how the program is working.
+5) Better system of constants. This is to be determined....
+
+
+Version 2.1
+New functionality for 'genres' of accompaniment (classical, jazz).
+Implement bestTimeSignature for scores without time signatures. V2.0 currently rejects them.
+Implement smart checking of command-line arguments.
+
+
+Version 2.2
+Add new accompaniment forms (string quartet, guitar, cello).
+
 
 '''
 
-# Works from music21 corpus can be files of any of these types.
-# User files should all be .xml format.
-accepted_extensions = ['.xml', '.mxl', '.abc']
- 
-# Currently, only melodies with these time signatures function correctly.
-accepted_timeSignatures = ['3/4', '4/4', '2/2', '6/8', '2/4']
 
-# Currently accepted styles of accompaniment. 
-#'-B' = block chords, '-A' = arppegiated
-accepted_styles = ['-B', '-A']
+#-----------------------------------------------------------
+# Here, Das-Harmonie is being run standalone.
 
-# Accepted methods of output.
-# Note: these will all display once the program has run.
-accepted_output_methods = ['--pdf', '--mus', '--xml', '--lily', '--text', '--debug']
-
-def basicVerify():
-	if len(sys.argv) == 4:
-  		return True
-	else:
-  		raise Exception ("Error (0): there are missing arguments.")
-
-def verifyFile():
-	try:
-		f = sys.argv[1]
-		fileName, fileExtension = os.path.splitext(f)
-	except:
-		raise Exception ("Error (1): cannot verify input file extension.")
-	try:
-		l = os.listdir("das-harmonie/melodies")
-		x = l.index(f)
-	except:
-		res = music21.corpus.getWork(fileName)
-		if len(res) > 0:
-			s = music21.corpus.parse(res)
-			print "File verified."
-			#s.show('lily.pdf')
-			return (s, fileName)
-		else:
-			raise Exception ("Error (3): cannot parse file.")
-	try:
-		s = music21.converter.parse("das-harmonie/melodies/" + f)
-		print "File verified."
-		#s.show('lily.pdf')
-		return (s, fileName)
-	except:
-		raise Exception ("Error (3): cannot parse file.")
-
-def verifyScore(s):
-	# verify time signature
-	try:
-		time = s.flat.getElementsByClass(music21.meter.TimeSignature)[0]
-		accepted_timeSignatures.index(time.ratioString)
-		return True
-	except:
-		raise Exception ("Error (4): time signature not recognized.")
-	# verify score is diatonic
-	try:
-		ms = H.getMeasures(s)
-		ns = [] 
-		for m in ms:
-			ns.extend(H.getPitches(m))
-		note_set = T.listScale(T.toPitchClasses(T.listSet(ns)))
-		if len(note_set.scale) > 7:
-			raise Exception ("Error (5): melody is not recognized as diatonic.")
-		print "Score verified."
-		return True
-	except:
-		raise Exception ("Error (6): unable to access notes.")
-
-def verifyStyle():
-	#verify style (specified via command-line)
-	try:
-		style = sys.argv[2]
-		x = accepted_styles.index(style)
-		print "Style verfied."
-		return True
-	except:
-		raise Exception ("Error (7): invalid style specified.")
-
-def verifyOutputMethod():
-	try:
-		om = sys.argv[3]
-		x = accepted_output_methods.index(om)
-		print "Output method verified."
-		return True
-	except:
-		raise Exception ("Error (8): invalid output method.")
-
-def verify():
-	print "Verifying..."
-	basic = basicVerify()
-	s, fileName = verifyFile()
-	allGood = basic and verifyScore(s) and verifyStyle() and verifyOutputMethod()
-	if allGood:
-		return (s, fileName)
-
-def runDasHarmonie():
-	#sys.tracebacklimit = 0 # hides traceback stdout 
-	DEBUG = False
-	om = sys.argv[3]
-	if om == '--debug':
-		DEBUG = True
-	s, fileName = verify()
-	res = T.keyAndTonic(s)
-	output = BS.buildScore(s,sys.argv[2][1], fileName) #GENERATE ACCOMPANIMENT
-	if om == '--mus':
-		output.show()
-	elif om == '--pdf':
-		output.show('lily.pdf')
-	elif om == '--xml':
-		output.show('musicxml')
-	elif om == '--lily':
-		output.show('lily')
-	elif om == '--text':
-		output.show('text')
-	elif om == '--debug':
-		assert DEBUG == True
-	else:
-		# default
-		output.show('lily.pdf')
-
-def run():
-	runDasHarmonie()
+# parse arguments
 
 
-run()
